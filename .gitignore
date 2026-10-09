@@ -2,7 +2,9 @@ php.local.ini
 .php-version
 
 ###> symfony/framework-bundle ###
-/.env.local
+.env.local
+/.env
+.env
 private14.md
 /.env.local.php
 /.env.*.local
