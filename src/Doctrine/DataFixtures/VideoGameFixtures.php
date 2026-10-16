@@ -2,6 +2,7 @@
 
 namespace App\Doctrine\DataFixtures;
 
+use App\Model\Entity\Tag;
 use App\Model\Entity\User;
 use App\Model\Entity\VideoGame;
 use App\Rating\CalculateAverageRating;
@@ -26,6 +27,7 @@ final class VideoGameFixtures extends Fixture implements DependentFixtureInterfa
     public function load(ObjectManager $manager): void
     {
         $users = $manager->getRepository(User::class)->findAll();
+        $tags = $manager->getRepository(Tag::class)->findAll();
 
         $videoGames = array_fill_callback(0, 50, fn (int $index): VideoGame => (new VideoGame)
             ->setTitle(sprintf('Jeu vidéo %d', $index))
@@ -37,7 +39,12 @@ final class VideoGameFixtures extends Fixture implements DependentFixtureInterfa
             ->setImageSize(2_098_872)
         );
 
-        // TODO : Ajouter les tags aux vidéos
+        foreach ($videoGames as $videoGame) {
+            $randomTags = $this->faker->randomElements($tags, rand(1, 2));
+                foreach ($randomTags as $tag) {
+                    $videoGame->getTags()->add($tag);
+                }
+        }
 
         array_walk($videoGames, [$manager, 'persist']);
 
@@ -49,6 +56,8 @@ final class VideoGameFixtures extends Fixture implements DependentFixtureInterfa
 
     public function getDependencies(): array
     {
-        return [UserFixtures::class];
+        return [UserFixtures::class,
+            TagFixtures::class
+        ];
     }
 }
