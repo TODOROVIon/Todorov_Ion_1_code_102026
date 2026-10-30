@@ -12,6 +12,7 @@ use App\Model\Entity\User;
 
 class NotesMoyenne extends TestCase
 {
+/* Test simple + test data provider */
     public function testJeu():void
     {
         $videoGame = new VideoGame();
@@ -21,6 +22,41 @@ class NotesMoyenne extends TestCase
 
         $this->assertNull($videoGame->getAverageRating());      // verifier si la valeur est null (assertNull)
     }
+    
+    /**
+     * @dataProvider dataProviderNotes
+     */
+    public function test_jeu(array $notes, ?int $moyenneNote):void
+    {
+        $videoGame = new VideoGame();
+        $user = new User();
+
+        foreach ($notes as $note) {
+            $review = new Review();
+            $review->setRating($note);
+            $review->setUser($user);
+            $review->setVideoGame($videoGame);
+            $videoGame->getReviews()->add($review);     //on recupere la collection de review puis on ajoute un review a la collection
+        }
+
+        $calculator = new RatingHandler();
+
+        $calculator->calculateAverage($videoGame);      //calculer la moyenne=average, src/Rating/RatingHandler(toutes les fonctionnes)
+
+        $this->assertSame($moyenneNote, $videoGame->getAverageRating());      // verifier si la valeur est null (assertNull)
+    }
+
+    public static function dataProviderNotes(): array
+    {
+        return [
+            'aucune note' => [[], null],
+            'une note' => [[5], 5],
+            'plusieurs notes' => [[1, 3, 5], 3],
+            'plusieurs notes avec moyenne décimale' => [[1, 2, 3, 4, 5], 3],
+        ];
+    }
+
+
 
     public function testJeuNote5():void
     {
