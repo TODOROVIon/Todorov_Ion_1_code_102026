@@ -12,13 +12,28 @@ use App\Model\Entity\User;
 
 class NotesMoyenne extends TestCase
 {
+    public static function dataProviderNotes(): array
+    {
+        return [
+            'aucune note' => [[], null],
+            'une note' => [[5], 5],
+            'plusieurs notes' => [[1, 3, 5], 3],
+            'note 1' => [[1], 1],
+            'note 2' => [[2], 2],
+            'note 3' => [[3], 3],
+            'note 4' => [[4], 4],
+            'note 5' => [[5], 5],
+            'plusieurs notes avec moyenne décimale' => [[1, 2, 3, 4, 5], 3],
+        ];
+    }
+
 /* Test simple + test data provider */
-    public function testJeux():void
+    public function testJeux():void                             //Jeux sans note
     {
         $videoGame = new VideoGame();
         $calculator = new RatingHandler();
 
-        $calculator->calculateAverage($videoGame);      //calculer la moyenne=average, src/Rating/RatingHandler(toutes les fonctionnes)
+        $calculator->calculateAverage($videoGame);              //calculer la moyenne=average, src/Rating/RatingHandler(toutes les fonctionnes)
 
         $this->assertNull($videoGame->getAverageRating());      // verifier si la valeur est null (assertNull)
     }
@@ -46,19 +61,10 @@ class NotesMoyenne extends TestCase
         $this->assertSame($moyenneNote, $videoGame->getAverageRating());      // verifier si la valeur est null (assertNull)
     }
 
-    public static function dataProviderNotes(): array
-    {
-        return [
-            'aucune note' => [[], null],
-            'une note' => [[5], 5],
-            'plusieurs notes' => [[1, 3, 5], 3],
-            'plusieurs notes avec moyenne décimale' => [[1, 2, 3, 4, 5], 3],
-        ];
-    }
     
 /* Test notes 5 + test data provider */
 
-    public function testJeuxNote5():void
+    public function testJeuxNote5():void                            // jeux avec note 5 en dur
     {
         $videoGame = new VideoGame();
         $user = new User();
@@ -67,17 +73,17 @@ class NotesMoyenne extends TestCase
         $review->setRating(5);
         $review->setUser($user);
         $review->setVideoGame($videoGame);
-        $videoGame->getReviews()->add($review);     //on recupere la collection de review puis on ajoute un review a la collection
+        $videoGame->getReviews()->add($review);                     //on recupere la collection de review puis on ajoute un review a la collection
 
         $calculator = new RatingHandler();
 
-        $calculator->calculateAverage($videoGame);      //calculer la moyenne=average, src/Rating/RatingHandler(toutes les fonctionnes)
+        $calculator->calculateAverage($videoGame);                  //calculer la moyenne=average, src/Rating/RatingHandler(toutes les fonctionnes)
 
         $this->assertSame(5, $videoGame->getAverageRating());      // verifier si la valeur est 5 (assertSame)
     }
     
     /**
-     * @dataProvider dataProviderNoteUnique
+     * @dataProvider dataProviderNotes
      */
     public function test_jeuxNoteUnique(array $notes, ?int $moyenneNote):void
     {
@@ -98,20 +104,7 @@ class NotesMoyenne extends TestCase
 
         $this->assertSame($moyenneNote, $videoGame->getAverageRating());      // verifier si la valeur est 5 (assertSame)
     }
-
-    public static function dataProviderNoteUnique(): array
-    {
-        return [
-            'note 1' => [[1], 1],
-            'note 2' => [[2], 2],
-            'note 3' => [[3], 3],
-            'note 4' => [[4], 4],
-            'note 5' => [[5], 5],
-        ];
-    }
-
-    
-    public function test_jeuxNotes(array $notes, ?int $moyenneNote):void
+    public function test_jeuxNotes():void
     {
         $videoGame = new VideoGame();
         $user = new User();
@@ -136,10 +129,10 @@ class NotesMoyenne extends TestCase
 
         
         $calculator = new RatingHandler();
+        
         $calculator->calculateAverage($videoGame);      //calculer la moyenne=average, src/Rating/RatingHandler(toutes les fonctionnes)
         
-        $this->assertSame(3, $videoGame->getAverageRating());      // verifier si la valeur est 3 (assertSame)
+        $this->assertSame(3, $videoGame->getAverageRating(), sprintf('votre note moyenne est de %d', 3));      // verifier si la valeur est 3 (assertSame)
     }
-    
 
 }
