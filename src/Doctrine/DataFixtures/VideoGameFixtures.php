@@ -50,7 +50,6 @@ final class VideoGameFixtures extends Fixture implements DependentFixtureInterfa
 
         $manager->flush();
 
-        // TODO : Ajouter des reviews aux vidéos
 
     }
 
