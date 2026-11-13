@@ -4,15 +4,47 @@ declare(strict_types=1);
 
 namespace App\Tests\Functional\VideoGame;
 
+use App\Model\Entity\Review;
+use App\Model\Entity\User;
+use App\Model\Entity\VideoGame;
 use App\Tests\Functional\FunctionalTestCase;
-use Symfony\Component\HttpFoundation\Response;
 
 final class ShowTest extends FunctionalTestCase
 {
     public function testShouldShowVideoGame(): void
     {
-        $this->get('/jeu-video-0');
+        $this->get('/jeu-video-1');
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('h1', 'Jeu vidéo 0');
+        self::assertSelectorTextContains('h1', 'Jeu vidéo 1');
     }
+
+    public function testShouldAddReview(): void
+    {
+        $this->login('user+2@email.com');                       // connection en tant qu'utilisateur
+        $crawler = $this->get('/jeu-video-10');                  //aller a la page du jeu vidéo
+        
+        self::assertResponseIsSuccessful();                     // confirmation que la réponse est réussie
+        self::assertSelectorExists('form[name="review"]');      // confirmation que le formulaire de review est présent
+
+        $this->client->submitForm('Poster', [                   // soumission du formulaire avec les données de l'avis
+            'review[rating]' => '5',
+            'review[comment]' => 'Super jeu !',
+        ]);
+
+        self::assertResponseRedirects('/jeu-video-10');          // confirmation que la réponse est une redirection vers la page du jeu vidéo
+        $this->client->followRedirect();                        // suivre la redirection
+
+        self::assertResponseIsSuccessful();                     // confirmation que la réponse est réussie après la redirection
+        self::assertSelectorNotExists('form[name="review"]');   // confirmation que le formulaire de review n'est plus présent après la soumission
+
+        $em = $this->getEntityManager();                        // récupération de l'EntityManager
+        $user = $em->getRepository(User::class)->findOneBy(['email' => 'user+2@email.com']);                        // récupération de l'utilisateur connecté depuis bdd
+        $videoGame = $em->getRepository(VideoGame::class)->findOneBy(['slug' => 'jeu-video-10']);                    // récupération du jeu vidéo depuis bdd
+        $review = $em->getRepository(Review::class)->findOneBy(['user' => $user, 'videoGame' => $videoGame]);       // recuperer l'avis 
+
+        self::assertNotNull($review);                                   // confirmation que l'avis a été créé
+        self::assertEquals(5, $review->getRating());                    // confirmation que la note de l'avis est correcte
+        self::assertEquals('Super jeu !', $review->getComment());       // confirmation que le commentaire de l'avis est correct
+    }
+
 }

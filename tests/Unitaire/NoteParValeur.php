@@ -171,5 +171,33 @@ class NoteParValeur extends TestCase
         $this->assertSame(0, $compteur->getNumberOfFour());
         $this->assertSame(0, $compteur->getNumberOfFive());
     }
+    /**
+     * @dataProvider dataProviderNotes
+     */
+    // public function test_JeuxMauvaisNote($notes, $attendu): void
+    // {
+    //     $videoGame = new VideoGame();
+    //     $user = new User();
+
+    //     foreach ($notes as $note) {
+    //         $review = new Review();
+    //         $review->setRating($note);
+    //         $review->setUser($user);
+    //         $review->setVideoGame($videoGame);
+    //         $videoGame->getReviews()->add($review);
+    //     }
+
+    //     $calculator = new RatingHandler();
+    
+    //     $calculator->countRatingsPerValue($videoGame);
+
+    //     $compteur = $videoGame->getNumberOfRatingsPerValue();
+    
+    //     $this->assertSame($attendu['one'], $compteur->getNumberOfOne());
+    //     $this->assertSame($attendu['two'], $compteur->getNumberOfTwo());
+    //     $this->assertSame($attendu['three'], $compteur->getNumberOfThree());
+    //     $this->assertSame($attendu['four'], $compteur->getNumberOfFour());
+    //     $this->assertSame($attendu['five'], $compteur->getNumberOfFive());
+    // }
 
 }
