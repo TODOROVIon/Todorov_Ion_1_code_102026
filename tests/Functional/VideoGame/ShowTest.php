@@ -20,7 +20,7 @@ final class ShowTest extends FunctionalTestCase
 
     public function testShouldAddReview(): void
     {
-        $this->login('user+2@email.com');                       // connection en tant qu'utilisateur
+        $this->login('user+20@email.com');                       // connection en tant qu'utilisateur
         $crawler = $this->get('/jeu-video-10');                  //aller a la page du jeu vidéo
         
         self::assertResponseIsSuccessful();                     // confirmation que la réponse est réussie
@@ -38,7 +38,7 @@ final class ShowTest extends FunctionalTestCase
         self::assertSelectorNotExists('form[name="review"]');   // confirmation que le formulaire de review n'est plus présent après la soumission
 
         $em = $this->getEntityManager();                        // récupération de l'EntityManager
-        $user = $em->getRepository(User::class)->findOneBy(['email' => 'user+2@email.com']);                        // récupération de l'utilisateur connecté depuis bdd
+        $user = $em->getRepository(User::class)->findOneBy(['email' => 'user+20@email.com']);                        // récupération de l'utilisateur connecté depuis bdd
         $videoGame = $em->getRepository(VideoGame::class)->findOneBy(['slug' => 'jeu-video-10']);                    // récupération du jeu vidéo depuis bdd
         $review = $em->getRepository(Review::class)->findOneBy(['user' => $user, 'videoGame' => $videoGame]);       // recuperer l'avis 
 
@@ -47,4 +47,20 @@ final class ShowTest extends FunctionalTestCase
         self::assertEquals('Super jeu !', $review->getComment());       // confirmation que le commentaire de l'avis est correct
     }
 
+    public function testRedirectAfterSubmittingReview(): void
+    {
+        $this->login('user+9@email.com');                       // connection en tant qu'utilisateur (user enregistré 0-9, sinon erreur)
+        $this->get('/jeu-video-12');                            // aller a la page du jeu vidéo
+
+        self::assertResponseIsSuccessful();                     // confirmation que la réponse est réussie
+        self::assertSelectorExists('form[name="review"]');      // confirmation que le formulaire de review est présent
+
+        $this->client->submitForm('Poster', [                   // soumission du formulaire avec les données de l'avis
+            'review[rating]' => '4',
+            'review[comment]' => 'Bon jeu, mais il y a mieux !',
+        ]);
+
+        self::assertResponseStatusCodeSame(302);                    // confirmation que la réponse est une redirection(302)
+        self::assertResponseRedirects('/jeu-video-12');              // confirmation que la redirection est vers la page du jeu vidéo
+    }
 }
